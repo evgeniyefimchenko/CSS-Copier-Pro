@@ -1,0 +1,10 @@
+.css-copier-highlight {
+  outline: 2px dashed #E91E63 !important; /* Ярко-розовый цвет для заметности */
+  box-shadow: 0 0 0 9999px rgba(0, 123, 255, 0.15) !important; /* Легкая полупрозрачная заливка вокруг */
+  cursor: pointer !important;
+  transition: outline-color 0.1s ease-out, box-shadow 0.1s ease-out;
+}
+
+.css-copier-highlight-active {
+  outline-color: #4CAF50 !important; /* Зеленый при финальном выборе (если нужно) */
+}

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>__MSG_optionsTitle__</title>
+    <style>
+        body { font-family: Inter, sans-serif; padding: 20px; max-width: 700px; margin: auto; background-color: #f4f6f8; color: #333; }
+        h1 { color: #2c3e50; text-align: center; margin-bottom: 30px;}
+        .container { background-color: white; padding: 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        label { display: block; margin-bottom: 8px; font-weight: 500; color: #34495e; }
+        textarea { width: 100%; min-height: 250px; margin-bottom: 15px; border: 1px solid #dcdfe6; border-radius: 4px; padding: 10px; box-sizing: border-box; font-family: 'Courier New', Courier, monospace; font-size: 14px; line-height: 1.6; }
+        .checkbox-group { margin-bottom: 25px; display: flex; align-items: center; background-color: #eaf0f6; padding: 12px; border-radius: 4px;}
+        .checkbox-group input[type="checkbox"] { width: 18px; height: 18px; margin-right: 12px; accent-color: #4A90E2; }
+        .checkbox-group label { margin-bottom: 0; font-weight: normal; cursor: help; }
+        .buttons-group { display: flex; justify-content: flex-start; gap: 15px; margin-top: 20px;}
+        button { padding: 12px 20px; font-size: 15px; font-weight: 500; cursor: pointer; border: none; border-radius: 5px; transition: background-color 0.2s ease, transform 0.1s ease; }
+        button#saveOptions { background-color: #4A90E2; color: white; }
+        button#saveOptions:hover { background-color: #357ABD; }
+        button#saveOptions:active { transform: translateY(1px); }
+        button#restoreDefaults { background-color: #7f8c8d; color: white; }
+        button#restoreDefaults:hover { background-color: #6c7a7b; }
+        button#restoreDefaults:active { transform: translateY(1px); }
+        #status { margin-top: 20px; font-weight: bold; text-align: center; min-height: 22px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="optionsTitleHeading">__MSG_optionsTitle__</h1>
+
+        <div>
+            <label for="usefulPropsTextarea" id="usefulPropsListLabel">__MSG_usefulPropsListLabel__</label>
+            <textarea id="usefulPropsTextarea"></textarea>
+        </div>
+
+        <div class="checkbox-group">
+            <input type="checkbox" id="useUsefulPropsToggle">
+            <label for="useUsefulPropsToggle" id="enableUsefulPropsLabel" title="__MSG_usefulPropsTooltip__">__MSG_enableUsefulPropsLabel__</label>
+        </div>
+
+        <div class="buttons-group">
+            <button id="saveOptions">__MSG_saveSettingsBtn__</button>
+            <button id="restoreDefaults">__MSG_restoreDefaultsBtn__</button>
+        </div>
+        <div id="status"></div>
+    </div>
+    <script src="options.js"></script>
+</body>
+</html>
