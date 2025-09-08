@@ -1,4 +1,4 @@
-const defaultUsefulPropsList = [ // КОРОТКИЙ СПИСОК ЗДЕСЬ
+const defaultUsefulPropsList = [
   'position', 'display', 'float', 'clear',
   'top', 'right', 'bottom', 'left', 'z-index',
   'width', 'height', 'min-width', 'min-height', 'max-width', 'max-height',
@@ -15,7 +15,7 @@ const defaultUsefulPropsList = [ // КОРОТКИЙ СПИСОК ЗДЕСЬ
   'flex-direction', 'flex-wrap', 'justify-content', 'align-items', 'align-content', 'align-self',
   'order',
   'grid', 'grid-template-columns', 'grid-template-rows', 'grid-column', 'grid-row',
-  'grid-auto-flow', 'grid-gap', 'gap'
+  'grid-auto-flow', 'grid-gap', 'gap', '--brand', '--radius', '--gap'
 ];
 
 const usefulPropsTextarea = document.getElementById('usefulPropsTextarea');

@@ -10,9 +10,8 @@ const defaultUsefulPropsForStorage = [
   'opacity', 'visibility',
   'overflow', 'overflow-x', 'overflow-y',
   'box-shadow', 'transform', 'transition', 'animation',
-  'cursor', 'list-style'
+  'cursor', 'list-style', '--brand', '--radius', '--gap'
 ];
-
 
 chrome.runtime.onInstalled.addListener((details) => {
   

@@ -18,13 +18,14 @@ document.addEventListener('DOMContentLoaded', setLocalizedTextPopup);
 document.getElementById('copyStylesBtn').addEventListener('click', () => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (tabs[0] && tabs[0].id) {
-      chrome.tabs.sendMessage(tabs[0].id, { action: "initCSSExtraction" }, (response) => {
+      chrome.scripting.executeScript({
+        target: { tabId: tabs[0].id },
+        func: initCSSExtractionFromPopup
+      }, () => {
         if (chrome.runtime.lastError) {
-          console.warn("CSS Copier (popup): Error sending message - ", chrome.runtime.lastError.message);
-        } else if (response && (response.status === "selectionModeActivated" || response.status === "selectionModeToggled")) {
+          console.warn("CSS Copier (popup): Error executing script - ", chrome.runtime.lastError.message);
+        } else {
           window.close();
-        } else if (response && response.status === "error") {
-          console.error("CSS Copier (popup): Error from content script - ", response.message);
         }
       });
     } else {
@@ -32,6 +33,14 @@ document.getElementById('copyStylesBtn').addEventListener('click', () => {
     }
   });
 });
+
+function initCSSExtractionFromPopup() {
+  if (typeof activateSelectionMode === 'function') {
+    activateSelectionMode();
+  } else {
+    console.error("CSS Copier (popup): Function activateSelectionMode is not defined in content script.");
+  }
+}
 
 document.getElementById('openOptionsPage').addEventListener('click', (e) => {
     e.preventDefault();
