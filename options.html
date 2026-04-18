@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>__MSG_optionsTitle__</title>
+    <title data-i18n="optionsTitle"></title>
     <style>
         body { font-family: Inter, sans-serif; padding: 20px; max-width: 750px; margin: auto; background-color: #f4f6f8; color: #333; }
         h1 { color: #2c3e50; text-align: center; margin-bottom: 30px;}
@@ -26,66 +26,73 @@
         button#restoreDefaults { background-color: #7f8c8d; color: white; }
         button#restoreDefaults:hover { background-color: #6c7a7b; }
         button#restoreDefaults:active { transform: translateY(1px); }
+        button#clearHistory { background-color: #e74c3c; color: white; }
+        button#clearHistory:hover { background-color: #c0392b; }
+        button#clearHistory:active { transform: translateY(1px); }
         #status { margin-top: 20px; font-weight: bold; text-align: center; min-height: 22px; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 id="optionsTitleHeading">__MSG_optionsTitle__</h1>
+        <h1 id="optionsTitleHeading" data-i18n="optionsTitle"></h1>
 
         <div class="settings-section">
-            <h3>📋 Фильтрация свойств</h3>
-            <label for="usefulPropsTextarea" id="usefulPropsListLabel">__MSG_usefulPropsListLabel__</label>
+            <h3 data-i18n="sectionFilterPropsTitle"></h3>
+            <label for="usefulPropsTextarea" data-i18n="usefulPropsListLabel"></label>
             <textarea id="usefulPropsTextarea"></textarea>
             
             <div class="checkbox-group">
                 <input type="checkbox" id="useUsefulPropsToggle">
-                <label for="useUsefulPropsToggle" id="enableUsefulPropsLabel" title="__MSG_usefulPropsTooltip__">__MSG_enableUsefulPropsLabel__</label>
+                <label for="useUsefulPropsToggle" data-i18n="enableUsefulPropsLabel" data-i18n-title="usefulPropsTooltip"></label>
             </div>
         </div>
 
         <div class="settings-section">
-            <h3>📤 Формат экспорта</h3>
+            <h3 data-i18n="sectionExportFormatTitle"></h3>
             <div class="form-row">
                 <div class="form-group">
-                    <label for="exportFormat">Формат вывода:</label>
+                    <label for="exportFormat" data-i18n="labelExportFormat"></label>
                     <select id="exportFormat">
-                        <option value="css">CSS (стандартный)</option>
-                        <option value="scss">SCSS (с вложенностью)</option>
-                        <option value="json">JSON (структура)</option>
-                        <option value="tailwind">Tailwind CSS (классы)</option>
+                        <option value="css" data-i18n="formatCSS"></option>
+                        <option value="scss" data-i18n="formatSCSS"></option>
+                        <option value="json" data-i18n="formatJSON"></option>
+                        <option value="tailwind" data-i18n="formatTailwind"></option>
                     </select>
                 </div>
             </div>
             <div class="checkbox-group">
                 <input type="checkbox" id="includePseudoElements">
-                <label for="includePseudoElements" title="Включать :before, :after, :first-letter, :first-line">Включать псевдоэлементы</label>
+                <label for="includePseudoElements" data-i18n="labelIncludePseudo" data-i18n-title="titleIncludePseudo"></label>
             </div>
         </div>
 
         <div class="settings-section">
-            <h3>📜 История копирования</h3>
+            <h3 data-i18n="sectionHistoryTitle"></h3>
             <div class="form-row">
                 <div class="form-group">
                     <div class="checkbox-group">
                         <input type="checkbox" id="copyHistoryEnabled">
-                        <label for="copyHistoryEnabled" title="Сохранять историю скопированных стилей">Включить историю</label>
+                        <label for="copyHistoryEnabled" data-i18n="labelEnableHistory" data-i18n-title="titleEnableHistory"></label>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="maxHistoryItems">Макс. записей:</label>
+                    <label for="maxHistoryItems" data-i18n="labelMaxHistoryItems"></label>
                     <input type="number" id="maxHistoryItems" min="1" max="50" value="10">
                 </div>
+            </div>
+            <div class="buttons-group" style="margin-top: 15px;">
+                <button id="clearHistory" data-i18n="btnClearHistory"></button>
             </div>
         </div>
 
         <div class="buttons-group">
-            <button id="saveOptions">__MSG_saveSettingsBtn__</button>
-            <button id="restoreDefaults">__MSG_restoreDefaultsBtn__</button>
+            <button id="saveOptions" data-i18n="saveSettingsBtn"></button>
+            <button id="restoreDefaults" data-i18n="restoreDefaultsBtn"></button>
         </div>
         <div id="status"></div>
     </div>
     <script src="config.js"></script>
+    <script src="i18n.js"></script>
     <script src="options.js"></script>
 </body>
 </html>

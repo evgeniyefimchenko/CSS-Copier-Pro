@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "2.0",
+  "version": "2.1",
   "description": "__MSG_extDescription__",
   "default_locale": "ru",
   "permissions": [
@@ -40,7 +40,7 @@
         "default": "Ctrl+Shift+S",
         "mac": "Command+Shift+S"
       },
-      "description": "Активировать CSS Copier"
+      "description": "__MSG_docShortcutDesc__"
     }
   },
   "options_ui": {
@@ -48,7 +48,7 @@
     "open_in_tab": true
   },
   "web_accessible_resources": [{
-    "resources": ["config.js"],
+    "resources": ["config.js", "i18n.js"],
     "matches": ["<all_urls>"]
   }]
 }
