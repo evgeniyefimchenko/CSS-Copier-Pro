@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "1.5",
+  "version": "2.0",
   "description": "__MSG_extDescription__",
   "default_locale": "ru",
   "permissions": [
@@ -29,9 +29,10 @@
   },
   "content_scripts": [{
     "matches": ["<all_urls>"],
-    "js": ["content.js"],
+    "js": ["config.js", "content.js"],
     "css": ["highlighter.css"],
-	"run_at": "document_end"
+	"run_at": "document_end",
+	"all_frames": true
   }],
   "commands": {
     "activate_css_copier": {
@@ -45,5 +46,9 @@
   "options_ui": {
     "page": "options.html",
     "open_in_tab": true
-  }
+  },
+  "web_accessible_resources": [{
+    "resources": ["config.js"],
+    "matches": ["<all_urls>"]
+  }]
 }

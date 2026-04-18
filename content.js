@@ -2,20 +2,8 @@ let isCssCopierSelectionModeActive = false;
 let cssCopierHighlightedElement = null;
 let cssCopierUserSettings = null;
 
-const shorterUsefulPropsReference = [
-    'position', 'display', 'float', 'clear',
-    'top', 'right', 'bottom', 'left', 'z-index',
-    'width', 'height', 'min-width', 'min-height', 'max-width', 'max-height',
-    'margin', 'padding',
-    'border', 'border-radius',
-    'background', 'background-color', 'background-image',
-    'color', 'font-family', 'font-size', 'font-weight', 'font-style', 'line-height',
-    'text-align', 'text-decoration', 'text-transform', 'vertical-align',
-    'opacity', 'visibility',
-    'overflow', 'overflow-x', 'overflow-y',
-    'box-shadow', 'transform', 'transition', 'animation',
-    'cursor', 'list-style', '--brand', '--radius', '--gap'
-];
+// Используем константы из config.js
+const shorterUsefulPropsReference = SHORTER_USEFUL_PROPS_REFERENCE;
 const fallbackDefaultUsefulProps = shorterUsefulPropsReference;
 
 async function loadCssCopierUserSettings() {
@@ -41,37 +29,7 @@ async function loadCssCopierUserSettings() {
 }
 
 // только то, что реально дефолт для большинства браузеров
-const STRICT_DEFAULTS = {
-    'position': 'static',
-    'top': 'auto',
-    'right': 'auto',
-    'bottom': 'auto',
-    'left': 'auto',
-    'margin-top': '0px',
-    'margin-right': '0px',
-    'margin-bottom': '0px',
-    'margin-left': '0px',
-    'padding-top': '0px',
-    'padding-right': '0px',
-    'padding-bottom': '0px',
-    'padding-left': '0px',
-    'border-top-width': '0px',
-    'border-right-width': '0px',
-    'border-bottom-width': '0px',
-    'border-left-width': '0px',
-    'transform-origin': '50% 50%',
-    'transform': 'matrix(1, 0, 0, 1, 0, 0)',
-    'opacity': '1',
-    'font-style': 'normal',
-    'text-decoration-line': 'none',
-    'vertical-align': 'baseline',
-    'min-width': '0px',
-    'min-height': '0px',
-    'text-decoration': 'none solid rgb(0,0,0)',
-    'overflow': 'visible',
-    'overflow-x': 'visible',
-    'overflow-y': 'visible'
-};
+const STRICT_DEFAULTS_LOCAL = STRICT_DEFAULTS;
 
 function shouldSkipComputedSize(prop, value, element) {
   let authoredFound = false;
@@ -98,7 +56,7 @@ function shouldSkipComputedSize(prop, value, element) {
 
 function isDefaultLikeValue(tag, pseudo, prop, value, styles) {
     // 1. точное совпадение с браузерным дефолтом
-    if (STRICT_DEFAULTS[prop] === value) return true;
+    if (STRICT_DEFAULTS_LOCAL[prop] === value) return true;
 	if (prop === 'text-decoration' && value.startsWith('none')) return true;
     // 2. border-color при border-width:0
     if (prop.endsWith('-color')) {
@@ -278,7 +236,8 @@ function extractElementInfo(element, currentParentSelector = null) {
         styles: getCleanStyles(element),
         children: []
     };
-    const pseudoElements = [':before', ':after'];
+    // Используем расширенный список псевдоэлементов из конфига
+    const pseudoElements = SUPPORTED_PSEUDO_ELEMENTS || [':before', ':after', ':first-letter', ':first-line'];
     for (const pseudo of pseudoElements) {
         const pseudoStyles = getCleanStyles(element, pseudo);
 		if (pseudo && Object.keys(pseudoStyles).length === 1 && pseudoStyles.background)
@@ -291,8 +250,17 @@ function extractElementInfo(element, currentParentSelector = null) {
             });
         }
     }
-    for (const child of element.children) {
-        info.children.push(extractElementInfo(child, ownSelector));
+    
+    // Рекурсивная обработка Shadow DOM
+    if (element.shadowRoot) {
+        for (const child of element.shadowRoot.children) {
+            info.children.push(extractElementInfo(child, ownSelector));
+        }
+    } else {
+        // Обычные дочерние элементы
+        for (const child of element.children) {
+            info.children.push(extractElementInfo(child, ownSelector));
+        }
     }
 	
     return info;
@@ -300,7 +268,7 @@ function extractElementInfo(element, currentParentSelector = null) {
 
 function generateOutput(elementInfo, depth = 0) {
     let output = '';
-    const indent = ''.repeat(depth);
+    const indent = '  '.repeat(depth);
     if (Object.keys(elementInfo.styles).length > 0) {
         output += `${indent}${elementInfo.selector} {\n`;
         output += formatStyles(elementInfo.styles);
@@ -309,6 +277,157 @@ function generateOutput(elementInfo, depth = 0) {
     for (const child of elementInfo.children) {
         output += generateOutput(child, depth + 1);
     }
+    return output;
+}
+
+// Генерация SCSS вывода с вложенностью
+function generateSCSSOutput(elementInfo, depth = 0) {
+    let output = '';
+    const indent = '  '.repeat(depth);
+    
+    if (Object.keys(elementInfo.styles).length > 0) {
+        // Проверяем, является ли селектор псевдоэлементом
+        const isPseudo = elementInfo.selector.match(/::?(before|after|first-letter|first-line)$/);
+        
+        if (isPseudo) {
+            // Для псевдоэлементов используем вложенный синтаксис SCSS
+            const parentSelector = elementInfo.selector.replace(/::?(before|after|first-letter|first-line)$/, '');
+            output += `${indent}${parentSelector} {\n`;
+            output += `${indent}  &${isPseudo[0]} {\n`;
+            output += formatStyles(elementInfo.styles).split('\n').map(line => `${indent}    ${line}`).join('\n');
+            output += `\n${indent}  }\n`;
+            
+            // Обрабатываем детей псевдоэлемента
+            for (const child of elementInfo.children) {
+                output += generateSCSSOutput(child, depth + 2);
+            }
+            output += `${indent}}\n\n`;
+        } else {
+            output += `${indent}${elementInfo.selector} {\n`;
+            output += formatStyles(elementInfo.styles);
+            
+            // Обрабатываем детей с вложенностью
+            const regularChildren = elementInfo.children.filter(child => 
+                !child.selector.match(/::?(before|after|first-letter|first-line)$/)
+            );
+            const pseudoChildren = elementInfo.children.filter(child => 
+                child.selector.match(/::?(before|after|first-letter|first-line)$/)
+            );
+            
+            if (regularChildren.length > 0) {
+                output += '\n';
+                for (const child of regularChildren) {
+                    // Извлекаем только часть селектора после родителя
+                    const childSelectorPart = child.selector.replace(elementInfo.selector + ' > ', '');
+                    output += `\n${indent}  ${childSelectorPart} {\n`;
+                    output += formatStyles(child.styles).split('\n').map(line => `${indent}    ${line}`).join('\n');
+                    
+                    // Рекурсивно для grandchildren
+                    for (const grandChild of child.children) {
+                        output += generateSCSSOutput(grandChild, depth + 2);
+                    }
+                    output += `\n${indent}  }`;
+                }
+            }
+            
+            output += `\n${indent}}\n\n`;
+            
+            // Псевдоэлементы обрабатываем отдельно
+            for (const pseudo of pseudoChildren) {
+                output += generateSCSSOutput(pseudo, depth);
+            }
+        }
+    } else {
+        // Если нет стилей у текущего элемента, обрабатываем только детей
+        for (const child of elementInfo.children) {
+            output += generateSCSSOutput(child, depth);
+        }
+    }
+    
+    return output;
+}
+
+// Генерация JSON вывода
+function generateJSONOutput(elementInfo) {
+    const result = {
+        selector: elementInfo.selector,
+        styles: elementInfo.styles,
+        children: elementInfo.children.map(child => generateJSONOutput(child))
+    };
+    return JSON.stringify(result, null, 2);
+}
+
+// Простая маппинг CSS свойств в Tailwind классы
+const TAILWIND_MAPPING = {
+    'display': { 'block': 'block', 'flex': 'flex', 'grid': 'grid', 'none': 'hidden', 'inline-block': 'inline-block' },
+    'position': { 'absolute': 'absolute', 'relative': 'relative', 'fixed': 'fixed', 'static': 'static' },
+    'flex-direction': { 'row': 'flex-row', 'column': 'flex-col' },
+    'justify-content': { 'center': 'justify-center', 'flex-start': 'justify-start', 'flex-end': 'justify-end', 'space-between': 'justify-between' },
+    'align-items': { 'center': 'items-center', 'flex-start': 'items-start', 'flex-end': 'items-end', 'stretch': 'items-stretch' },
+    'text-align': { 'center': 'text-center', 'left': 'text-left', 'right': 'text-right' },
+    'font-weight': { 'bold': 'font-bold', 'normal': 'font-normal', '300': 'font-light', '700': 'font-bold' },
+    'text-decoration': { 'none': 'no-underline', 'underline': 'underline' },
+    'overflow': { 'hidden': 'overflow-hidden', 'auto': 'overflow-auto', 'scroll': 'overflow-scroll' },
+    'cursor': { 'pointer': 'cursor-pointer', 'default': 'cursor-default' }
+};
+
+function convertToTailwind(styles) {
+    const tailwindClasses = [];
+    
+    for (const [prop, value] of Object.entries(styles)) {
+        if (TAILWIND_MAPPING[prop] && TAILWIND_MAPPING[prop][value]) {
+            tailwindClasses.push(TAILWIND_MAPPING[prop][value]);
+        } else if (prop === 'width' || prop === 'height') {
+            // Преобразуем px в rem для Tailwind
+            const match = value.match(/^(\d+)px$/);
+            if (match) {
+                const remValue = Math.round(parseInt(match[1]) / 4);
+                tailwindClasses.push(`w-${remValue}`);
+            }
+        } else if (prop === 'margin' || prop === 'padding') {
+            const match = value.match(/^(\d+)px$/);
+            if (match) {
+                const remValue = Math.round(parseInt(match[1]) / 4);
+                const prefix = prop === 'margin' ? 'm' : 'p';
+                tailwindClasses.push(`${prefix}-${remValue}`);
+            }
+        } else if (prop === 'background-color' || prop === 'color') {
+            // Простейшая обработка цветов
+            if (value.startsWith('#')) {
+                tailwindClasses.push(prop === 'background-color' ? `bg-[${value}]` : `text-[${value}]`);
+            }
+        } else if (prop === 'border-radius') {
+            if (value === '4px') tailwindClasses.push('rounded');
+            else if (value === '8px') tailwindClasses.push('rounded-lg');
+            else if (value === '9999px') tailwindClasses.push('rounded-full');
+        }
+    }
+    
+    return tailwindClasses.join(' ');
+}
+
+function generateTailwindOutput(elementInfo, depth = 0) {
+    let output = '';
+    const indent = '  '.repeat(depth);
+    
+    if (Object.keys(elementInfo.styles).length > 0) {
+        const tailwindClasses = convertToTailwind(elementInfo.styles);
+        if (tailwindClasses) {
+            output += `${indent}<!-- ${elementInfo.selector} -->\n`;
+            output += `${indent}<div class="${tailwindClasses}">\n`;
+            
+            for (const child of elementInfo.children) {
+                output += generateTailwindOutput(child, depth + 1);
+            }
+            
+            output += `${indent}</div>\n\n`;
+        }
+    } else {
+        for (const child of elementInfo.children) {
+            output += generateTailwindOutput(child, depth);
+        }
+    }
+    
     return output;
 }
 
@@ -364,7 +483,30 @@ function handlePageClickForSelection(e) {
     deactivateSelectionMode();
     if (clickedElement) {
         const elementInfo = extractElementInfo(clickedElement, null);
-        const cleanCSS = generateOutput(elementInfo);
+        
+        // Получаем формат экспорта из настроек
+        const exportFormat = cssCopierUserSettings.exportFormat || 'css';
+        
+        let output;
+        switch(exportFormat) {
+            case 'scss':
+                output = generateSCSSOutput(elementInfo);
+                break;
+            case 'json':
+                output = generateJSONOutput(elementInfo);
+                break;
+            case 'tailwind':
+                output = generateTailwindOutput(elementInfo);
+                break;
+            default:
+                output = generateOutput(elementInfo);
+        }
+        
+        const cleanCSS = output;
+        
+        // Сохраняем в историю копирования
+        saveToCopyHistory(cleanCSS, exportFormat);
+        
         navigator.clipboard.writeText(cleanCSS).then(() => {
             showTemporaryNotification(chrome.i18n.getMessage("copiedToClipboardMsg"));
             console.info(cleanCSS);
@@ -373,6 +515,32 @@ function handlePageClickForSelection(e) {
             showTemporaryNotification(chrome.i18n.getMessage("errorCopiedToClipboardMsg"), true);
         });
     }
+}
+
+// Функция сохранения истории копирования
+function saveToCopyHistory(content, format) {
+    if (!cssCopierUserSettings.copyHistoryEnabled) return;
+    
+    const historyItem = {
+        id: Date.now(),
+        content: content,
+        format: format,
+        timestamp: new Date().toISOString(),
+        url: window.location.href
+    };
+    
+    chrome.storage.local.get({ copyHistory: [] }, (items) => {
+        let history = items.copyHistory || [];
+        history.unshift(historyItem);
+        
+        // Ограничиваем количество записей
+        const maxItems = cssCopierUserSettings.maxHistoryItems || 10;
+        if (history.length > maxItems) {
+            history = history.slice(0, maxItems);
+        }
+        
+        chrome.storage.local.set({ copyHistory: history });
+    });
 }
 
 function handleKeyDownForEscape(e) {
