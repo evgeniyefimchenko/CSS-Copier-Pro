@@ -1,28 +1,17 @@
-const defaultUsefulPropsList = [
-  'position', 'display', 'float', 'clear',
-  'top', 'right', 'bottom', 'left', 'z-index',
-  'width', 'height', 'min-width', 'min-height', 'max-width', 'max-height',
-  'margin', 'padding',
-  'border', 'border-radius',
-  'background', 'background-color', 'background-image',
-  'color', 'font-family', 'font-size', 'font-weight', 'font-style', 'line-height',
-  'text-align', 'text-decoration', 'text-transform', 'vertical-align',
-  'opacity', 'visibility',
-  'overflow', 'overflow-x', 'overflow-y',
-  'box-shadow', 'transform', 'transition', 'animation',
-  'cursor', 'list-style',
-  'flex', 'flex-grow', 'flex-shrink', 'flex-basis',
-  'flex-direction', 'flex-wrap', 'justify-content', 'align-items', 'align-content', 'align-self',
-  'order',
-  'grid', 'grid-template-columns', 'grid-template-rows', 'grid-column', 'grid-row',
-  'grid-auto-flow', 'grid-gap', 'gap', '--brand', '--radius', '--gap'
-];
+// CSS Copier Pro - Options Page
+// Использует константы из config.js
 
 const usefulPropsTextarea = document.getElementById('usefulPropsTextarea');
 const useUsefulPropsToggle = document.getElementById('useUsefulPropsToggle');
 const saveButton = document.getElementById('saveOptions');
 const restoreButton = document.getElementById('restoreDefaults');
 const statusDiv = document.getElementById('status');
+
+// Элементы для новых настроек
+const exportFormatSelect = document.getElementById('exportFormat');
+const includePseudoElementsToggle = document.getElementById('includePseudoElements');
+const copyHistoryEnabledToggle = document.getElementById('copyHistoryEnabled');
+const maxHistoryItemsInput = document.getElementById('maxHistoryItems');
 
 
 function setLocalizedText() {
@@ -37,12 +26,22 @@ function setLocalizedText() {
 
 function saveOptions() {
     const customPropsString = usefulPropsTextarea.value.trim();
-    const customPropsArray = customPropsString ? customPropsString.split('\n').map(prop => prop.trim()).filter(Boolean) : defaultUsefulPropsList;
+    const customPropsArray = customPropsString ? customPropsString.split('\n').map(prop => prop.trim()).filter(Boolean) : DEFAULT_USEFUL_PROPS_LIST;
     const useFiltering = useUsefulPropsToggle.checked;
+    
+    // Получаем новые настройки
+    const exportFormat = exportFormatSelect ? exportFormatSelect.value : 'css';
+    const includePseudo = includePseudoElementsToggle ? includePseudoElementsToggle.checked : true;
+    const copyHistory = copyHistoryEnabledToggle ? copyHistoryEnabledToggle.checked : true;
+    const maxHistory = maxHistoryItemsInput ? parseInt(maxHistoryItemsInput.value) : 10;
 
     chrome.storage.sync.set({
         userUsefulProps: customPropsArray,
-        useUsefulPropsFiltering: useFiltering
+        useUsefulPropsFiltering: useFiltering,
+        exportFormat: exportFormat,
+        includePseudoElements: includePseudo,
+        copyHistoryEnabled: copyHistory,
+        maxHistoryItems: maxHistory
     }, () => {
         statusDiv.textContent = chrome.i18n.getMessage("statusSettingsSaved");
         statusDiv.style.color = '#27ae60';
@@ -52,20 +51,38 @@ function saveOptions() {
 
 function loadOptions() {
     chrome.storage.sync.get({
-        userUsefulProps: defaultUsefulPropsList,
-        useUsefulPropsFiltering: true
+        userUsefulProps: DEFAULT_USEFUL_PROPS_LIST,
+        useUsefulPropsFiltering: true,
+        exportFormat: 'css',
+        includePseudoElements: true,
+        copyHistoryEnabled: true,
+        maxHistoryItems: 10
     }, (items) => {
         usefulPropsTextarea.value = items.userUsefulProps.join('\n');
         useUsefulPropsToggle.checked = items.useUsefulPropsFiltering;
-         if (items.userUsefulProps.length !== defaultUsefulPropsList.length && items.userUsefulProps.join(',') !== defaultUsefulPropsList.join(',')) {
-            console.warn("CSS Copier Options V1.5: Loaded props from storage differ from current script's default list.");
+        
+        // Загружаем новые настройки
+        if (exportFormatSelect) exportFormatSelect.value = items.exportFormat || 'css';
+        if (includePseudoElementsToggle) includePseudoElementsToggle.checked = items.includePseudoElements !== false;
+        if (copyHistoryEnabledToggle) copyHistoryEnabledToggle.checked = items.copyHistoryEnabled !== false;
+        if (maxHistoryItemsInput) maxHistoryItemsInput.value = items.maxHistoryItems || 10;
+        
+         if (items.userUsefulProps.length !== DEFAULT_USEFUL_PROPS_LIST.length && items.userUsefulProps.join(',') !== DEFAULT_USEFUL_PROPS_LIST.join(',')) {
+            console.warn("CSS Copier Options V2.0: Loaded props from storage differ from current script's default list.");
         }
     });
 }
 
 function restoreDefaultOptions() {
-    usefulPropsTextarea.value = defaultUsefulPropsList.join('\n');
+    usefulPropsTextarea.value = DEFAULT_USEFUL_PROPS_LIST.join('\n');
     useUsefulPropsToggle.checked = true;
+    
+    // Восстанавливаем настройки по умолчанию
+    if (exportFormatSelect) exportFormatSelect.value = 'css';
+    if (includePseudoElementsToggle) includePseudoElementsToggle.checked = true;
+    if (copyHistoryEnabledToggle) copyHistoryEnabledToggle.checked = true;
+    if (maxHistoryItemsInput) maxHistoryItemsInput.value = 10;
+    
     statusDiv.textContent = chrome.i18n.getMessage("statusSettingsRestored") + " " + (chrome.i18n.getMessage("clickSavePrompt") || "Нажмите 'Сохранить'.");
     statusDiv.style.color = '#2980b9';
 }

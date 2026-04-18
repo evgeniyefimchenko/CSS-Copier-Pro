@@ -1,28 +1,19 @@
-const defaultUsefulPropsForStorage = [ 
-  'position', 'display', 'float', 'clear',
-  'top', 'right', 'bottom', 'left', 'z-index',
-  'width', 'height', 'min-width', 'min-height', 'max-width', 'max-height',
-  'margin', 'padding',
-  'border', 'border-radius',
-  'background', 'background-color', 'background-image',
-  'color', 'font-family', 'font-size', 'font-weight', 'font-style', 'line-height',
-  'text-align', 'text-decoration', 'text-transform', 'vertical-align',
-  'opacity', 'visibility',
-  'overflow', 'overflow-x', 'overflow-y',
-  'box-shadow', 'transform', 'transition', 'animation',
-  'cursor', 'list-style', '--brand', '--radius', '--gap'
-];
+// CSS Copier Pro - Background Service Worker
+// Использует константы из config.js
 
 chrome.runtime.onInstalled.addListener((details) => {
   
   function setDefaults() {
     chrome.storage.sync.set({
-        userUsefulProps: defaultUsefulPropsForStorage,
-        useUsefulPropsFiltering: true
+        userUsefulProps: DEFAULT_USEFUL_PROPS_LIST,
+        useUsefulPropsFiltering: true,
+        exportFormat: 'css',
+        includePseudoElements: true,
+        copyHistoryEnabled: true,
+        maxHistoryItems: 10
     }, () => {
         if (chrome.runtime.lastError) {
-            console.error("CSS Copier Background V1.6.3: Error setting fresh default settings:", chrome.runtime.lastError.message);
-        } else {
+            console.error("CSS Copier Background V2.0: Error setting fresh default settings:", chrome.runtime.lastError.message);
         }
     });
   }
@@ -30,8 +21,7 @@ chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === "install" || details.reason === "update") {
     chrome.storage.sync.remove(['userUsefulProps', 'useUsefulPropsFiltering'], () => {
         if (chrome.runtime.lastError) {
-            console.error("CSS Copier Background V1.6.3: Error clearing old settings:", chrome.runtime.lastError.message);
-        } else {
+            console.error("CSS Copier Background V2.0: Error clearing old settings:", chrome.runtime.lastError.message);
         }
         setDefaults(); 
     });
@@ -40,7 +30,7 @@ chrome.runtime.onInstalled.addListener((details) => {
   const parentMenuId = "cssCopierParent";
   chrome.contextMenus.removeAll(() => { 
     if (chrome.runtime.lastError) {
-        console.warn("CSS Copier Background V1.6.3: Error removing all context menus (often fine if none existed):", chrome.runtime.lastError.message);
+        console.warn("CSS Copier Background V2.0: Error removing all context menus:", chrome.runtime.lastError.message);
     }
     chrome.contextMenus.create({
         id: parentMenuId,
@@ -59,7 +49,7 @@ chrome.runtime.onInstalled.addListener((details) => {
         title: chrome.i18n.getMessage("contextMenuOpenSettings") || "Settings",
         contexts: ["all"]
     });
-    chrome.contextMenus.create({ // Новый пункт меню
+    chrome.contextMenus.create({
         id: "openDocumentationViaContext",
         parentId: parentMenuId,
         title: chrome.i18n.getMessage("documentationLinkText") || "Documentation",
@@ -72,7 +62,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === "selectElementViaContext" && tab && tab.id) {
     chrome.tabs.sendMessage(tab.id, { action: "initCSSExtraction" }, () => { 
       if (chrome.runtime.lastError) {
-        console.warn("CSS Copier (background ctx menu V1.6.3): ", chrome.runtime.lastError.message);
+        console.warn("CSS Copier (background ctx menu V2.0): ", chrome.runtime.lastError.message);
       }
     });
   } else if (info.menuItemId === "openOptionsViaContext") {
@@ -81,7 +71,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     } else {
         window.open(chrome.runtime.getURL('options.html'));
     }
-  } else if (info.menuItemId === "openDocumentationViaContext") { // Обработчик для нового пункта
+  } else if (info.menuItemId === "openDocumentationViaContext") {
     chrome.tabs.create({ url: chrome.runtime.getURL("documentation.html") });
   }
 });
@@ -90,7 +80,7 @@ chrome.commands.onCommand.addListener((command, tab) => {
   if (command === "activate_css_copier" && tab && tab.id) {
     chrome.tabs.sendMessage(tab.id, { action: "initCSSExtraction" }, () => { 
       if (chrome.runtime.lastError) {
-         console.warn("CSS Copier (background command V1.6.3): ", chrome.runtime.lastError.message);
+         console.warn("CSS Copier (background command V2.0): ", chrome.runtime.lastError.message);
       }
     });
   }
