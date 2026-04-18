@@ -13,7 +13,7 @@
   "usefulPropsTooltip": { "message": "If enabled, only properties from this list that differ from parent or default values will be copied. If disabled, all properties differing from parent or default values will be copied." },
   "saveSettingsBtn": { "message": "Save Settings" },
   "restoreDefaultsBtn": { "message": "Restore Defaults" },
-  "clickSavePrompt": {"message": "Click 'Save Settings'."},
+  "clickSavePrompt": { "message": "Click 'Save Settings'." },
   "statusSettingsSaved": { "message": "Settings saved." },
   "statusSettingsRestored": { "message": "Default settings restored." },
   "contextMenuParent": { "message": "CSS Copier Pro" },
