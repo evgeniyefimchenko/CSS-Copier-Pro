@@ -44,5 +44,20 @@
   "docTrouble2Prob": { "message": "Расширение не работает / не активируется режим выбора." },
   "docTrouble2Sol": { "message": "Убедитесь, что страница полностью загрузилась. Попробуйте обновить страницу. Перезагрузите расширение на странице `chrome://extensions/`. Проверьте консоль разработчика на наличие ошибок." },
   "docShortcutHeading": { "message": "Горячая клавиша" },
-  "docShortcutDesc": { "message": "По умолчанию для активации используется комбинация Ctrl+Shift+S (или Command+Shift+S на Mac). Вы можете изменить эту комбинацию на странице `chrome://extensions/shortcuts`." }
+  "docShortcutDesc": { "message": "По умолчанию для активации используется комбинация Ctrl+Shift+S (или Command+Shift+S на Mac). Вы можете изменить эту комбинацию на странице `chrome://extensions/shortcuts`." },
+  "sectionFilterPropsTitle": { "message": "📋 Фильтрация свойств" },
+  "sectionExportFormatTitle": { "message": "📤 Формат экспорта" },
+  "sectionHistoryTitle": { "message": "📜 История копирования" },
+  "labelExportFormat": { "message": "Формат вывода:" },
+  "formatCSS": { "message": "CSS (стандартный)" },
+  "formatSCSS": { "message": "SCSS (с вложенностью)" },
+  "formatJSON": { "message": "JSON (структура)" },
+  "formatTailwind": { "message": "Tailwind CSS (классы)" },
+  "labelIncludePseudo": { "message": "Включать псевдоэлементы" },
+  "titleIncludePseudo": { "message": "Включать :before, :after, :first-letter, :first-line" },
+  "labelEnableHistory": { "message": "Включить историю" },
+  "titleEnableHistory": { "message": "Сохранять историю скопированных стилей" },
+  "labelMaxHistoryItems": { "message": "Макс. записей:" },
+  "btnClearHistory": { "message": "Очистить историю" },
+  "msgHistoryCleared": { "message": "История очищена!" }
 }

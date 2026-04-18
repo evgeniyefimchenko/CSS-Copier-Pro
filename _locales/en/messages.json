@@ -44,5 +44,20 @@
   "docTrouble2Prob": { "message": "The extension doesn't work / element selection mode doesn't activate." },
   "docTrouble2Sol": { "message": "Ensure the page has fully loaded. Try refreshing the page. Reload the extension from the `chrome://extensions/` page. Check the developer console for errors." },
   "docShortcutHeading": { "message": "Keyboard Shortcut" },
-  "docShortcutDesc": { "message": "By default, use Ctrl+Shift+S (or Command+Shift+S on Mac) to activate. You can change this shortcut on the `chrome://extensions/shortcuts` page." }
+  "docShortcutDesc": { "message": "By default, use Ctrl+Shift+S (or Command+Shift+S on Mac) to activate. You can change this shortcut on the `chrome://extensions/shortcuts` page." },
+  "sectionFilterPropsTitle": { "message": "📋 Property Filtering" },
+  "sectionExportFormatTitle": { "message": "📤 Export Format" },
+  "sectionHistoryTitle": { "message": "📜 Copy History" },
+  "labelExportFormat": { "message": "Output format:" },
+  "formatCSS": { "message": "CSS (standard)" },
+  "formatSCSS": { "message": "SCSS (nested)" },
+  "formatJSON": { "message": "JSON (structure)" },
+  "formatTailwind": { "message": "Tailwind CSS (classes)" },
+  "labelIncludePseudo": { "message": "Include pseudo-elements" },
+  "titleIncludePseudo": { "message": "Include :before, :after, :first-letter, :first-line" },
+  "labelEnableHistory": { "message": "Enable history" },
+  "titleEnableHistory": { "message": "Save copy history" },
+  "labelMaxHistoryItems": { "message": "Max items:" },
+  "btnClearHistory": { "message": "Clear History" },
+  "msgHistoryCleared": { "message": "History cleared!" }
 }
